@@ -6,7 +6,7 @@ interface Memo {
     content: string;
 }
 
-const API_URL = process.env.VITE_API_URL + "/api/memos";
+const API_URL = import.meta.env.VITE_API_URL + "/api/memos";
 
 function App() {
     const [memos, setMemos] = useState<Memo[]>([]);
