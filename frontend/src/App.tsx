@@ -6,8 +6,7 @@ interface Memo {
     content: string;
 }
 
-// 지금 당장은 하드 코딩된 주소를 사용한다.
-const API_URL = "http://localhost:8080/api/memos";
+const API_URL = process.env.VITE_API_URL + "/api/memos";
 
 function App() {
     const [memos, setMemos] = useState<Memo[]>([]);

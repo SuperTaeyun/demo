@@ -7,6 +7,11 @@ RUN npm ci
 
 # 전체 소스 코드 복사 및 정적 파일로 빌드(dist 폴더 생성)
 COPY . .
+
+# 환경 변수 선언, 등록
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
 RUN npm run build
 
 # 실행 스테이지
