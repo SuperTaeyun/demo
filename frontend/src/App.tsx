@@ -1,122 +1,110 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import {useState, useEffect} from "react";
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+interface Memo {
+    id: number;
+    title: string;
+    content: string;
 }
 
-export default App
+// 지금 당장은 하드 코딩된 주소를 사용한다.
+const API_URL = "http://localhost:8080/api/memos";
+
+function App() {
+    const [memos, setMemos] = useState<Memo[]>([]);
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
+
+    // GET memos
+    const fetchMemos = async () => {
+        try {
+            const response = await fetch(API_URL);
+            const data = await response.json();
+            setMemos(data);
+        } catch (error) {
+            console.error('백엔드 연결 실패:', error);
+        }
+    }
+
+    const createMemo = async (e: React.SubmitEvent) => {
+        e.preventDefault();
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({title, content}),
+            });
+            setTitle('');
+            setContent('');
+            // 데이터 생성 후 다시 불러오기
+            fetchMemos();
+        } catch (error) {
+            console.error('메모 생성 실패:', error);
+        }
+    };
+
+    const deleteMemo = async (id: number) => {
+        try {
+            await fetch(API_URL + `/${id}`, {
+                method: 'DELETE',
+            });
+            fetchMemos();
+        } catch (error) {
+            console.error('메모 삭제 실패:', error);
+        }
+    };
+
+    // 컴포넌트 로딩 과정에서 한 번 실행
+    useEffect(() => {
+        fetchMemos();
+    }, []);
+
+    return (
+        <div style={{padding: '20px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif'}}>
+            <h1>Memo App</h1>
+
+            <form onSubmit={createMemo} style={{display: 'flex', gap: '10px', marginBottom: '20px'}}>
+                <input
+                    type="text"
+                    placeholder="제목"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                    style={{flex: 1, padding: '8px'}}
+                />
+                <input
+                    type="text"
+                    placeholder="내용"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    required
+                    style={{flex: 2, padding: '8px'}}
+                />
+                <button type="submit" style={{padding: '8px 16px', cursor: 'pointer'}}>등록</button>
+            </form>
+
+            <ul style={{listStyle: 'none', padding: 0}}>
+                {memos.map((memo) => (
+                    <li key={memo.id}
+                        style={{border: '1px solid #ddd', padding: '15px', marginBottom: '10px', borderRadius: '5px'}}>
+                        <h3 style={{margin: '0 0 10px 0'}}>{memo.title}</h3>
+                        <p style={{margin: '0 0 15px 0', color: '#555'}}>{memo.content}</p>
+                        <button onClick={() => deleteMemo(memo.id)} style={{
+                            color: 'white',
+                            backgroundColor: '#ff4444',
+                            border: 'none',
+                            padding: '5px 10px',
+                            borderRadius: '3px',
+                            cursor: 'pointer'
+                        }}>
+                            삭제
+                        </button>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}
+
+export default App;
