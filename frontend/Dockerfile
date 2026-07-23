@@ -12,6 +12,9 @@ COPY . .
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
+# TEST
+RUN echo "Docker: ${VITE_API_URL} 입니다."
+
 RUN npm run build
 
 # 실행 스테이지
