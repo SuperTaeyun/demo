@@ -3,7 +3,7 @@ services:
     image: mysql:8.0
     environment:
       MYSQL_DATABASE: memodb
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_ROOT_PASSWORD: rootpasswd
     ports:
       - "3306:3306"
     volumes:
