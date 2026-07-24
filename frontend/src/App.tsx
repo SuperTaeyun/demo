@@ -6,7 +6,7 @@ interface Memo {
     content: string;
 }
 
-const API_URL = "http://3.34.199.160:8080/api/memos";
+const API_URL = "/api/memos";
 
 function App() {
     const [memos, setMemos] = useState<Memo[]>([]);

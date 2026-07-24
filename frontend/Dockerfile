@@ -8,17 +8,13 @@ RUN npm ci
 # 전체 소스 코드 복사 및 정적 파일로 빌드(dist 폴더 생성)
 COPY . .
 
-# 환경 변수 선언, 등록
-ARG VITE_API_URL
-ENV VITE_API_URL=$VITE_API_URL
-
-# TEST
-RUN echo "Docker: ${VITE_API_URL} 입니다."
-
 RUN npm run build
 
 # 실행 스테이지
 FROM nginx:alpine
+
+# nginx.conf 적용
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 
