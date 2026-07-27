@@ -21,6 +21,11 @@ public class MemoController {
         return memoService.createMemo(req);
     }
 
+    @GetMapping("/{id}")
+    public MemoResponse getMemo(@PathVariable Long id) {
+        return memoService.getMemo(id);
+    }
+
     @GetMapping
     public List<MemoResponse> getAllMemos() {
         return memoService.getAllMemos();
